@@ -63,9 +63,13 @@ if __name__ == '__main__':
         alchemy = Alchemy(alchemy_key.strip())
     
     links = pinboard.getLinksByTags('need_tags')
+    sort = lambda x: x['text'] if float(x['relevance']) > 0.63 else None
     
     for link in links:
         url = link['href']
         print(url)
-        kw_res = alchemy.keywordExtract(url)
-        print kw_res['keywords']
+        kw_res = alchemy.keywordExtract(url)['keywords']
+        kw_res = map(sort, kw_res)
+        kw_res = filter(lambda x: x, kw_res)
+        print kw_res
+
