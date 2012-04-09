@@ -13,6 +13,7 @@ import json
 
 class Alchemy:
     KEYWORDS_URL = 'http://access.alchemyapi.com/calls/url/URLGetRankedKeywords'
+    CONCEPTS_URL = 'http://access.alchemyapi.com/calls/url/URLGetRankedConcepts'
     
     def __init__(self, token):
         self._conn = Http('.cache')
@@ -21,19 +22,27 @@ class Alchemy:
             keywordExtractMode = 'strict',
             outputMode = 'json')
 
-    def buildURL(self, **kwargs):
-        return "%s?%s" % (self.KEYWORDS_URL, urlencode(kwargs))
+    def buildURL(self, api_root, **kw):
+        return "%s?%s" % (api_root, urlencode(kw))
 
-    def keywordExtract(self, url):
-        kw = dict(url=url)
-        kw.update(self._properties)
-        
-        request_url = self.buildURL(**kw)
+    def makeRequest(self, api_root, **kw):
+        request_url = self.buildURL(api_root, **kw)
         header, body = self._conn.request(request_url, 'GET')
         if header.status == 200:
             return json.loads(body)
 
-
+    def keywordExtract(self, url):
+        kw = dict(url=url)
+        kw.update(self._properties)
+        extracted = self.makeRequest(self.KEYWORDS_URL, **kw)
+        return extracted
+        
+    def conceptExtract(self, url):
+        kw = dict(url=url)
+        kw.update(self._properties)
+        extracted = self.makeRequest(self.CONCEPTS_URL, **kw)
+        return extracted
+ 
 class Pinboard:
     POSTS_URL = 'https://api.pinboard.in/v1/posts/all'
     
@@ -63,13 +72,18 @@ if __name__ == '__main__':
         alchemy = Alchemy(alchemy_key.strip())
     
     links = pinboard.getLinksByTags('need_tags')
-    sort = lambda x: x['text'] if float(x['relevance']) > 0.63 else None
+    lower = lambda x: x.lower() if isinstance(x, str) or isinstance(x, unicode) else None
+    sort  = lambda x: x['text'] if float(x['relevance']) > 0.7 else None
     
     for link in links:
         url = link['href']
         print(url)
         kw_res = alchemy.keywordExtract(url)['keywords']
-        kw_res = map(sort, kw_res)
-        kw_res = filter(lambda x: x, kw_res)
-        print kw_res
-
+        cn_res = alchemy.conceptExtract(url)['concepts']
+        tags = cn_res+kw_res
+        
+        tags = map(sort, tags)
+        tags = map(lower, tags)
+        tags = filter(lambda x: x, tags)
+        tags = list(sorted(set(tags)))
+        print tags
