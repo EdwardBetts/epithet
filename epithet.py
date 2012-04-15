@@ -62,6 +62,18 @@ class Pinboard:
         if header.status == 200:
             return json.loads(body)
 
+def lowercase(string):
+    if isinstance(string, str) or isinstance(string, unicode):
+        return string.lower()
+    else:
+        return None
+
+def sortByRelevance(item, score):
+    if float(item['relevance']) > score:
+        return item['text']
+    else:
+        return None
+
 if __name__ == '__main__':
     with open('pinboard.key', 'r') as f:
         pin_user, pin_pwd = f.readlines()
@@ -72,8 +84,6 @@ if __name__ == '__main__':
         alchemy = Alchemy(alchemy_key.strip())
     
     links = pinboard.getLinksByTags('need_tags')
-    lower = lambda x: x.lower() if isinstance(x, str) or isinstance(x, unicode) else None
-    sort  = lambda x: x['text'] if float(x['relevance']) > 0.7 else None
     
     for link in links:
         url = link['href']
@@ -81,9 +91,13 @@ if __name__ == '__main__':
         kw_res = alchemy.keywordExtract(url)['keywords']
         cn_res = alchemy.conceptExtract(url)['concepts']
         tags = cn_res+kw_res
+        # print tags
         
+        sort = lambda x: sortByRelevance(x, 0.75)
         tags = map(sort, tags)
-        tags = map(lower, tags)
+        tags = map(lowercase, tags)
         tags = filter(lambda x: x, tags)
         tags = list(sorted(set(tags)))
+
         print tags
+
