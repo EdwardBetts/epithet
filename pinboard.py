@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-__version__ = '0.1.0'
 __license__ = "public domain"
-__author__ = 'Luiz Rocha'
+__author__  = 'Luiz Rocha'
 
 from httplib2 import Http
 from urllib import urlencode
