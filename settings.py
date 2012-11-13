@@ -1,0 +1,4 @@
+ALCHEMY_KEY = ''
+
+PINBOARD_USER = ''
+PINBOARD_PWD = ''
