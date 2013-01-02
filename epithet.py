@@ -11,7 +11,7 @@ from utils import *
 import alchemy
 import pinboard
 
-links = pinboard.getLinksByTags('need_tags')
+links = pinboard.getBookmarksByTags('need_tags')
 
 for link in links:
     url = link['href']

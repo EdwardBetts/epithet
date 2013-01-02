@@ -16,14 +16,20 @@ def __get_connection():
     _conn.add_credentials(PINBOARD_USER, PINBOARD_PWD)
     return _conn
 
-def __build_url(**kwargs):
-    return "%s?%s" % (POSTS_URL, urlencode(kwargs))
-      
-def getLinksByTags(*tags):
-    tags = ','.join(tags)
-    kw = dict(tag=tags, format='json')
-    
-    request_url = __build_url(**kw)
+def __build_url(qs):
+    return "%s?%s" % (POSTS_URL, urlencode(qs))
+
+def __fetch_and_parse_bookmarks(qs):
+    request_url = __build_url(qs)
     header, body = __get_connection().request(request_url, 'GET')
     if header.status == 200:
         return json.loads(body)
+
+def getBookmarksByTags(*tags):
+    tags = ','.join(tags)
+    qs = { 'tag': tags, 'format': 'json' }
+    return __fetch_and_parse_bookmarks(qs)
+
+def getAllBookmarks():
+    qs = { 'format': 'json' }
+    return __fetch_and_parse_bookmarks(qs)
