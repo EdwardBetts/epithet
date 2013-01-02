@@ -24,6 +24,10 @@ def __make_request(base_url, **kw):
     header, body = Http('.cache').request(request_url, 'GET')
     if header.status == 200:
         return json.loads(body)
+    else:
+        print header.status
+        print body
+        return None
 
 def keywordExtract(target_url):
     kw = __query_params(target_url)

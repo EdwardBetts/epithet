@@ -23,11 +23,22 @@ for link in links:
     pin_desc  = link['description']
     user_tags = link['tags'].split()
     url       = link['href']
-    print url
+    tags      = []
     
-    kw_res = alchemy.keywordExtract(url)['keywords']
-    cn_res = alchemy.conceptExtract(url)['concepts']
-    tags = cn_res+kw_res
+    # currently processing:
+    print url
+
+    kw_res = alchemy.keywordExtract(url)
+    if kw_res.has_key('keywords'):
+        tags = tags+kw_res['keywords']
+    
+    cn_res = alchemy.conceptExtract(url)
+    if cn_res.has_key('concepts'):
+        tags = tags+cn_res['concepts']
+    
+    # tags = cn_res+kw_res
+    # print tags
+    # break
     
     sort = lambda x: alchemy.sortByRelevance(x, 0.75)
     dash = lambda x: x.replace(' ', '-').lower()
