@@ -45,8 +45,11 @@ for link in links:
     print body
     
     # send to elasticsearch
-    resp, body = http.request('http://localhost', 'PUT', body=body)
-    print resp
-    
-    # then break (debug only)
-    break
+    pin_uri = 'http://localhost:9200/epithet/pin/%s' % pin_hash
+    print pin_uri
+    headers, body = http.request(pin_uri, 'PUT', body=body)
+    print headers
+    if headers.status in [200, 201, 204]:
+        print "---------------- processed, continuing ----------------"
+    else:
+        break
